@@ -5,6 +5,7 @@
 #include <boost/asio/spawn.hpp>
 #include <boost/config.hpp>
 #include <boost/program_options.hpp>
+#include <boost/lockfree/queue.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -41,7 +42,7 @@ void do_session(beast::tcp_stream& client, beast::tcp_stream& target, net::yield
     target.close();
 }
 
-void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::pair<std::string, std::string> forward, net::yield_context yield) {
+void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::vector<tcp::resolver::results_type>& targets, boost::lockfree::queue<int>& targetsIdx, net::yield_context yield) {
     beast::error_code ec;
 
     tcp::acceptor acceptor{ioc};
@@ -61,11 +62,6 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::pair<std::stri
     if (ec)
         return fail(ec, "listen");
 
-    tcp::resolver resolver(ioc);
-    const auto results = resolver.async_resolve(forward.first, forward.second, yield[ec]);
-    if (ec)
-        return fail(ec, "async_resolve");
-
     while (true) {
         tcp::socket client_socket{ioc};
         acceptor.async_accept(client_socket, yield[ec]);
@@ -73,22 +69,32 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::pair<std::stri
             fail(ec, "accept");
 
         beast::tcp_stream target_stream{ioc};
-        target_stream.async_connect(results, yield[ec]);
-        if (ec)
-            fail(ec, "connect");
+        auto result = targetsIdx.consume_one([&](int value) {
+            target_stream.async_connect(targets[value], yield[ec]);
+            if (ec)
+                fail(ec, "connect");
+            targetsIdx.push(value);
+        });
 
-        else
-            boost::asio::spawn(
-                acceptor.get_executor(), std::bind(
-                    &do_session, beast::tcp_stream(std::move(client_socket)), std::move(target_stream), std::placeholders::_1
-                )
-            );
+        boost::asio::spawn(
+            acceptor.get_executor(), std::bind(
+                &do_session, beast::tcp_stream(std::move(client_socket)), std::move(target_stream), std::placeholders::_1
+            )
+        );
     }
 }
 
-int main(int argc, char* argv[]) {
-    std::string listener_host, listener_port, target_host, target_port;
+bool validate_arguments(po::variables_map& vm) {
+    if (!vm.count("host") || !vm.count("port") || !vm.count("target_host") || !vm.count("target_port"))
+        return false;
+    if (vm["target_host"].as<std::vector<std::string>>().size() != vm["target_port"].as<std::vector<std::string>>().size())
+        return false;
+    return true;
+}
 
+int main(int argc, char* argv[]) {
+    std::string listener_host, listener_port;
+    std::vector<std::string> target_host, target_port;
     po::options_description desc("Allowed options");
 
     po::positional_options_description pd;
@@ -98,13 +104,13 @@ int main(int argc, char* argv[]) {
         ("help", "produce help message")
         ("host", po::value<std::string>(&listener_host), "listener host address")
         ("port", po::value<std::string>(&listener_port), "listener port")
-        ("target_host", po::value<std::string>(&target_host), "target host address")
-        ("target_port", po::value<std::string>(&target_port), "target port");
+        ("target_host", po::value<std::vector<std::string>>(&target_host), "target host address")
+        ("target_port", po::value<std::vector<std::string>>(&target_port), "target port");
     po::variables_map vm;
     po::store(po::command_line_parser(argc, argv).options(desc).positional(pd).run(), vm);
     po::notify(vm);
 
-    if (vm.count("help") || (!vm.count("host") || !vm.count("port") || !vm.count("target_host") || !vm.count("target_port"))) {
+    if (vm.count("help") || !validate_arguments(vm)) {
         std::cout << "Usage: load_balancer HOST PORT TARGETS" << '\n';
         std::cout << desc;
         return vm.count("help") ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -113,10 +119,18 @@ int main(int argc, char* argv[]) {
     unsigned int threads = std::thread::hardware_concurrency();
     net::io_context ioc{threads};
 
+    tcp::resolver resolver(ioc);
+    std::vector<tcp::resolver::results_type> targets;
+    boost::lockfree::queue<int> targetsIdx(target_host.size());
+    for (std::size_t i = 0; i != target_host.size(); ++i) {
+        targets.push_back(resolver.resolve(target_host[i], target_port[i]));
+        targetsIdx.push(i);
+    }
+
     const auto host = net::ip::make_address(listener_host);
     const auto port = static_cast<unsigned short>(std::stoi(listener_port));
     boost::asio::spawn(ioc, std::bind(
-        &do_listen, std::ref(ioc), tcp::endpoint{host, port}, std::make_pair(target_host, target_port), std::placeholders::_1
+        &do_listen, std::ref(ioc), tcp::endpoint{host, port}, std::ref(targets), std::ref(targetsIdx), std::placeholders::_1
     ));
 
     std::vector<std::thread> v;
