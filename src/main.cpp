@@ -4,6 +4,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/spawn.hpp>
 #include <boost/config.hpp>
+#include <boost/program_options.hpp>
 
 #include <algorithm>
 #include <cstdlib>
@@ -19,6 +20,8 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
+
+namespace po = boost::program_options;
 
 void fail(beast::error_code ec, char const* what) {
     std::cerr << what << ": " << ec.message() << "\n";
@@ -87,20 +90,34 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::pair<std::stri
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 5) {
-        std::cout << "Usage:\n"
-                  << "./a.out [listener_host] [listener_port] [target_host] [target_port]"
-                  << std::endl;
-        return EXIT_FAILURE;
-    }
+    std::string listener_host, listener_port, target_host, target_port;
 
-    const auto host = net::ip::make_address(argv[1]);
-    const auto port = static_cast<unsigned short>(std::atoi(argv[2]));
-    const auto target_host = argv[3], target_port = argv[4];
+    po::options_description desc("Allowed options");
+
+    po::positional_options_description pd;
+    pd.add("host", 1).add("port", 1);
+
+    desc.add_options()
+        ("help", "produce help message")
+        ("host", po::value<std::string>(&listener_host), "listener host address")
+        ("port", po::value<std::string>(&listener_port), "listener port")
+        ("target_host", po::value<std::string>(&target_host), "target host address")
+        ("target_port", po::value<std::string>(&target_port), "target port");
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(desc).positional(pd).run(), vm);
+    po::notify(vm);
+
+    if (vm.count("help") || (!vm.count("host") || !vm.count("port") || !vm.count("target_host") || !vm.count("target_port"))) {
+        std::cout << "Usage: load_balancer HOST PORT TARGETS" << '\n';
+        std::cout << desc;
+        return vm.count("help") ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
 
     unsigned int threads = std::thread::hardware_concurrency();
     net::io_context ioc{threads};
 
+    const auto host = net::ip::make_address(listener_host);
+    const auto port = static_cast<unsigned short>(std::atoi(listener_port.data()));
     boost::asio::spawn(ioc, std::bind(
         &do_listen, std::ref(ioc), tcp::endpoint{host, port}, std::make_pair(target_host, target_port), std::placeholders::_1
     ));
