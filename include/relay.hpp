@@ -1,3 +1,9 @@
+#pragma once
+
+namespace eoanermine {
+
+namespace load_balancer {
+
 template<bool isRequest, class AsyncWriteStream, class AsyncReadStream, class DynamicBuffer>
 void relay(AsyncWriteStream& output, AsyncReadStream& input, DynamicBuffer& buffer, boost::beast::error_code& ec, boost::asio::yield_context yield) {
     static_assert(boost::beast::is_async_write_stream<AsyncWriteStream>::value,
@@ -14,3 +20,7 @@ void relay(AsyncWriteStream& output, AsyncReadStream& input, DynamicBuffer& buff
     boost::beast::http::async_write_header(output, sr, yield[ec]);
     if (ec) return;
 }
+
+} // namespace load_balancer
+
+} // namespace eoanermine
