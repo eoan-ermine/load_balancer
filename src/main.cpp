@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "../include/relay.hpp"
+#include "../include/common.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -22,10 +23,6 @@ namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
 
 namespace po = boost::program_options;
-
-void fail(beast::error_code ec, char const* what) {
-    std::cerr << what << ": " << ec.message() << "\n";
-}
 
 void do_session(beast::tcp_stream& client, beast::tcp_stream& target, net::yield_context yield) {    
     beast::error_code ec;
@@ -117,7 +114,7 @@ int main(int argc, char* argv[]) {
     net::io_context ioc{threads};
 
     const auto host = net::ip::make_address(listener_host);
-    const auto port = static_cast<unsigned short>(std::atoi(listener_port.data()));
+    const auto port = static_cast<unsigned short>(std::stoi(listener_port));
     boost::asio::spawn(ioc, std::bind(
         &do_listen, std::ref(ioc), tcp::endpoint{host, port}, std::make_pair(target_host, target_port), std::placeholders::_1
     ));
