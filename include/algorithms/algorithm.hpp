@@ -26,6 +26,12 @@ std::istream& operator>>(std::istream& in, Algorithm::Type& algorithm) {
 	return in;
 }
 
+std::ostream& operator<<(std::ostream& out, const Algorithm::Type& algorithm) {
+	if (algorithm == Algorithm::Type::ROUND_ROBIN) out << "round_robin";
+	else if (algorithm == Algorithm::Type::CONSTANT) out << "constant";
+	return out;
+}
+
 struct AlgorithmInfo {
 	Algorithm::Type type;
 	std::size_t targetIdx;
