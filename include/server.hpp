@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "algorithms/round_robin.hpp"
+#include "algorithms/constant.hpp"
 #include "relay.hpp"
 #include "common.hpp"
 
@@ -44,7 +45,7 @@ void do_session(beast::tcp_stream& client, beast::tcp_stream& target, net::yield
     target.close();
 }
 
-void do_listen(net::io_context& ioc, tcp::endpoint endpoint, RoundRobin& algorithm, net::yield_context yield) {
+void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::shared_ptr<Algorithm>& algorithm, net::yield_context yield) {
     beast::error_code ec;
 
     tcp::acceptor acceptor{ioc};
@@ -66,7 +67,7 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, RoundRobin& algorit
         if (ec) return fail(ec, "accept");
 
         beast::tcp_stream target_stream{ioc};
-        target_stream.async_connect(algorithm.getNext(), yield[ec]);
+        target_stream.async_connect(algorithm->getNext(), yield[ec]);
         boost::asio::spawn(
             acceptor.get_executor(), std::bind(
                 &do_session, beast::tcp_stream(std::move(client_socket)), std::move(target_stream), std::placeholders::_1
@@ -80,14 +81,21 @@ class server {
     net::io_context ioc;
 public:
     server(int threads = std::thread::hardware_concurrency()): threads{threads}, ioc(threads) { }
-    void run(std::string_view host, std::string_view port, std::vector<std::pair<std::string_view, std::string_view>> targets_addrs) {
+    void run(std::string_view host, std::string_view port, AlgorithmInfo info, std::vector<std::pair<std::string_view, std::string_view>> targets_addrs) {
         tcp::resolver resolver(ioc);
 
         std::vector<tcp::resolver::results_type> targets;
         for (std::size_t i = 0; i != targets_addrs.size(); ++i) {
             targets.push_back(resolver.resolve(targets_addrs[i].first, targets_addrs[i].second));
         }
-        RoundRobin algorithm = RoundRobin(targets);
+
+        std::shared_ptr<Algorithm> algorithm;
+        switch (info.type) {
+            case Algorithm::Type::ROUND_ROBIN:
+                algorithm = std::make_shared<RoundRobin>(targets);
+            case Algorithm::Type::CONSTANT:
+                algorithm = std::make_shared<Constant>(targets, info.targetIdx);
+        }
 
         auto endpoint = tcp::endpoint{net::ip::make_address(host), static_cast<unsigned short>(std::atoi(port.data()))};
         boost::asio::spawn(ioc, std::bind(
