@@ -93,8 +93,10 @@ public:
         switch (info.type) {
             case Algorithm::Type::ROUND_ROBIN:
                 algorithm = std::make_shared<RoundRobin>(targets);
+                break;
             case Algorithm::Type::CONSTANT:
                 algorithm = std::make_shared<Constant>(targets, info.targetIdx);
+                break;
         }
 
         auto endpoint = tcp::endpoint{net::ip::make_address(host), static_cast<unsigned short>(std::atoi(port.data()))};
