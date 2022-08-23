@@ -13,8 +13,8 @@
 #include <thread>
 #include <vector>
 
-#include "../include/relay.hpp"
-#include "../include/common.hpp"
+#include "relay.hpp"
+#include "common.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;

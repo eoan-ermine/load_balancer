@@ -1,4 +1,4 @@
-#include "../include/driver.hpp"
+#include "driver.hpp"
 
 int main(int argc, char* argv[]) {
     eoanermine::load_balancer::driver driver{argc, argv};
