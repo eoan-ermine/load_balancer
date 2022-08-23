@@ -13,6 +13,7 @@
 #include <thread>
 #include <vector>
 
+#include "algorithms/round_robin.hpp"
 #include "relay.hpp"
 #include "common.hpp"
 
@@ -43,7 +44,7 @@ void do_session(beast::tcp_stream& client, beast::tcp_stream& target, net::yield
     target.close();
 }
 
-void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::vector<tcp::resolver::results_type>& targets, boost::lockfree::queue<int, boost::lockfree::capacity<64>>& targetsIdx, net::yield_context yield) {
+void do_listen(net::io_context& ioc, tcp::endpoint endpoint, RoundRobin& algorithm, net::yield_context yield) {
     beast::error_code ec;
 
     tcp::acceptor acceptor{ioc};
@@ -65,12 +66,7 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::vector<tcp::re
         if (ec) return fail(ec, "accept");
 
         beast::tcp_stream target_stream{ioc};
-        auto result = targetsIdx.consume_one([&](int value) {
-            target_stream.async_connect(targets[value], yield[ec]);
-            if (ec) return fail(ec, "connect");
-            targetsIdx.push(value);
-        });
-
+        target_stream.async_connect(algorithm.getNext(), yield[ec]);
         boost::asio::spawn(
             acceptor.get_executor(), std::bind(
                 &do_session, beast::tcp_stream(std::move(client_socket)), std::move(target_stream), std::placeholders::_1
@@ -82,20 +78,20 @@ void do_listen(net::io_context& ioc, tcp::endpoint endpoint, std::vector<tcp::re
 class server {
     int threads;
     net::io_context ioc;
-    std::vector<tcp::resolver::results_type> targets;
-    boost::lockfree::queue<int, boost::lockfree::capacity<64>> targetsIdx;
 public:
     server(int threads = std::thread::hardware_concurrency()): threads{threads}, ioc(threads) { }
     void run(std::string_view host, std::string_view port, std::vector<std::pair<std::string_view, std::string_view>> targets_addrs) {
         tcp::resolver resolver(ioc);
+
+        std::vector<tcp::resolver::results_type> targets;
         for (std::size_t i = 0; i != targets_addrs.size(); ++i) {
             targets.push_back(resolver.resolve(targets_addrs[i].first, targets_addrs[i].second));
-            targetsIdx.push(i);
         }
+        RoundRobin algorithm = RoundRobin(targets);
 
         auto endpoint = tcp::endpoint{net::ip::make_address(host), static_cast<unsigned short>(std::atoi(port.data()))};
         boost::asio::spawn(ioc, std::bind(
-            &do_listen, std::ref(ioc), endpoint, std::ref(targets), std::ref(targetsIdx), std::placeholders::_1
+            &do_listen, std::ref(ioc), endpoint, std::ref(algorithm), std::placeholders::_1
         ));
 
         std::vector<std::thread> v;
