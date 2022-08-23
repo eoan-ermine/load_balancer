@@ -11,7 +11,7 @@ find_package(Boost 1.71 COMPONENTS coroutine program_options REQUIRED)
 
 add_executable(load_balancer
 	src/main.cpp include/common.hpp include/driver.hpp include/relay.hpp include/server.hpp
-	include/algorithms/algorithm.hpp include/algorithms/round_robin.hpp
+	include/algorithms/algorithm.hpp include/algorithms/round_robin.hpp include/algorithms/constant.hpp
 )
 target_include_directories(load_balancer PRIVATE include/)
 
