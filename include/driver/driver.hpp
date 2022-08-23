@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "arguments.hpp"
-#include "server.hpp"
+#include "server/server.hpp"
 
 namespace eoanermine {
 

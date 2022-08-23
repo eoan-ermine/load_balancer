@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/algorithm.hpp"
+#include "algorithm.hpp"
 
 #include <boost/lockfree/queue.hpp>
 
