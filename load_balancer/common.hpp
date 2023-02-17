@@ -7,7 +7,7 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-void fail(boost::beast::error_code ec, const char *what) {
+void inline fail(boost::beast::error_code ec, const char *what) {
   std::cerr << what << ": " << ec.message() << "\n";
 }
 

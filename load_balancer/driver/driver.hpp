@@ -10,6 +10,8 @@
 #include <load_balancer/driver/arguments.hpp>
 #include <load_balancer/server/server.hpp>
 
+namespace po = boost::program_options;
+
 namespace eoanermine {
 
 namespace load_balancer {
