@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/lockfree/queue.hpp>
+#include <vector>
 
 #include <load_balancer/server/algorithms/algorithm.hpp>
 
@@ -14,19 +15,9 @@ private:
   boost::lockfree::queue<std::size_t, boost::lockfree::capacity<64>> targetsIdx;
 
 public:
-  RoundRobin(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets)
-      : targets(targets) {
-    for (std::size_t i = 0; i != targets.size(); ++i) {
-      targetsIdx.push(i);
-    }
-  }
-  boost::asio::ip::tcp::resolver::results_type &getNext() override {
-    std::size_t idx;
-    targetsIdx.pop(idx);
-    targetsIdx.push(idx);
-    return targets[idx];
-  };
-  ~RoundRobin() {}
+  RoundRobin(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets);
+  boost::asio::ip::tcp::resolver::results_type &getNext() override;
+  ~RoundRobin();
 };
 
 } // namespace load_balancer

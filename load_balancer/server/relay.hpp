@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/asio/spawn.hpp>
+
 namespace eoanermine {
 
 namespace load_balancer {

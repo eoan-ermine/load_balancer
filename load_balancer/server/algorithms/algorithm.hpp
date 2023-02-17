@@ -1,10 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/beast/http.hpp>
 
 namespace eoanermine {
 
@@ -14,7 +12,7 @@ class Algorithm {
 public:
   enum class Type { ROUND_ROBIN, CONSTANT };
   virtual boost::asio::ip::tcp::resolver::results_type &getNext() = 0;
-  virtual ~Algorithm() {}
+  virtual ~Algorithm();
 };
 
 std::istream &operator>>(std::istream &in, Algorithm::Type &algorithm);

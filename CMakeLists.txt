@@ -10,7 +10,8 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.71 COMPONENTS coroutine program_options REQUIRED)
 
 add_executable(load_balancer
-	load_balancer/main.cpp load_balancer/server/algorithms/algorithm.cpp load_balancer/server/server.cpp
+	load_balancer/main.cpp load_balancer/driver/driver.cpp load_balancer/server/server.cpp
+	load_balancer/server/algorithms/algorithm.cpp load_balancer/server/algorithms/constant.cpp load_balancer/server/algorithms/round_robbin.cpp
 	load_balancer/common.hpp load_balancer/driver/driver.hpp load_balancer/driver/arguments.hpp
 	load_balancer/server/relay.hpp load_balancer/server/server.hpp load_balancer/server/algorithms/algorithm.hpp
 	load_balancer/server/algorithms/round_robin.hpp load_balancer/server/algorithms/constant.hpp

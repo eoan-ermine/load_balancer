@@ -22,6 +22,8 @@ std::ostream &operator<<(std::ostream &out, const Algorithm::Type &algorithm) {
   return out;
 }
 
+Algorithm::~Algorithm() {}
+
 } // namespace load_balancer
 
 } // namespace eoanermine
