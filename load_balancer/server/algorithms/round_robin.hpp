@@ -1,8 +1,8 @@
 #pragma once
 
-#include "algorithm.hpp"
-
 #include <boost/lockfree/queue.hpp>
+
+#include <load_balancer/server/algorithms/algorithm.hpp>
 
 namespace eoanermine {
 

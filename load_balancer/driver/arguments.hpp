@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "server/algorithms/algorithm.hpp"
+#include <load_balancer/server/algorithms/algorithm.hpp>
 
 namespace eoanermine {
 

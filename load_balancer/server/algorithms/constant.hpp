@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithm.hpp"
+#include <load_balancer/server/algorithms/algorithm.hpp>
 
 namespace eoanermine {
 

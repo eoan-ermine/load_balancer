@@ -7,8 +7,8 @@
 #include <vector>
 #include <utility>
 
-#include "arguments.hpp"
-#include "server/server.hpp"
+#include <load_balancer/driver/arguments.hpp>
+#include <load_balancer/server/server.hpp>
 
 namespace eoanermine {
 

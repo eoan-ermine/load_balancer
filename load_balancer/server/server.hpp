@@ -13,10 +13,10 @@
 #include <thread>
 #include <vector>
 
-#include "algorithms/round_robin.hpp"
-#include "algorithms/constant.hpp"
-#include "relay.hpp"
-#include "common.hpp"
+#include <load_balancer/server/algorithms/round_robin.hpp>
+#include <load_balancer/server/algorithms/constant.hpp>
+#include <load_balancer/server/relay.hpp>
+#include <load_balancer/common.hpp>
 
 namespace beast = boost::beast;
 namespace http = beast::http;
