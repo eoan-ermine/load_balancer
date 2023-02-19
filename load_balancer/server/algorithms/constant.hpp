@@ -8,11 +8,11 @@ namespace load_balancer {
 
 class Constant : public Algorithm {
 private:
-  boost::asio::ip::tcp::resolver::results_type &target;
+  TargetInfo &target;
 
 public:
-  Constant(boost::asio::ip::tcp::resolver::results_type &target);
-  boost::asio::ip::tcp::resolver::results_type &getNext() override;
+  Constant(TargetInfo &target);
+  TargetInfo &getNext() override;
   ~Constant();
 };
 

@@ -4,12 +4,9 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-Constant::Constant(boost::asio::ip::tcp::resolver::results_type &target)
-    : target(target) {}
+Constant::Constant(TargetInfo &target) : target(target) {}
 
-boost::asio::ip::tcp::resolver::results_type &Constant::getNext() {
-  return target;
-};
+TargetInfo &Constant::getNext() { return target; };
 
 Constant::~Constant() {}
 

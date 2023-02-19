@@ -9,6 +9,8 @@
 #include <utility>
 #include <vector>
 
+#include <load_balancer/server/target_info.hpp>
+
 namespace beast = boost::beast;
 namespace net = boost::asio;
 using tcp = boost::asio::ip::tcp;
@@ -17,7 +19,8 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-void do_session(beast::tcp_stream &client, beast::tcp_stream &target,
+void do_session(beast::tcp_stream &client_stream,
+                beast::tcp_stream &target_stream, TargetInfo &target_info,
                 net::yield_context yield);
 void do_listen(net::io_context &ioc, tcp::endpoint endpoint,
                std::shared_ptr<Algorithm> &algorithm, net::yield_context yield);
