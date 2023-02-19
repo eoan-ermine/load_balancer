@@ -1,7 +1,10 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
+#include <boost/certify/https_verification.hpp>
 #include <boost/config.hpp>
 #include <boost/lockfree/queue.hpp>
+
+#include <chrono>
 
 #include <load_balancer/common.hpp>
 #include <load_balancer/server/algorithms/constant.hpp>
@@ -10,6 +13,9 @@
 
 #include <load_balancer/server/server.hpp>
 
+#include <load_balancer/server/transports/http_transport.hpp>
+#include <load_balancer/server/transports/https_transport.hpp>
+
 namespace http = beast::http;
 
 namespace eoanermine {
@@ -17,16 +23,16 @@ namespace eoanermine {
 namespace load_balancer {
 
 void do_session(beast::tcp_stream &client_stream,
-                beast::tcp_stream &target_stream, TargetInfo &target_info,
-                net::yield_context yield) {
+                std::shared_ptr<Transport> target_transport,
+                TargetInfo &target_info, net::yield_context yield) {
   beast::error_code ec;
   beast::flat_buffer buffer;
   buffer.reserve(2048);
 
-  relay<true>(target_stream, client_stream, target_info, buffer, ec, yield);
+  relay<true>(target_transport, client_stream, target_info, buffer, ec, yield);
 
   http::response<http::dynamic_body> res;
-  http::async_read(target_stream, buffer, res, yield[ec]);
+  target_transport->async_read(buffer, res, ec, yield);
   if (ec)
     return fail(ec, "response read");
 
@@ -35,10 +41,10 @@ void do_session(beast::tcp_stream &client_stream,
     return fail(ec, "response write");
 
   client_stream.socket().shutdown(tcp::socket::shutdown_send, ec);
-  target_stream.close();
+  target_transport->disconnect(ec, yield);
 }
 
-void do_listen(net::io_context &ioc, tcp::endpoint endpoint,
+void do_listen(net::io_context &ioc, ssl::context &ctx, tcp::endpoint endpoint,
                std::shared_ptr<Algorithm> &algorithm,
                net::yield_context yield) {
   beast::error_code ec;
@@ -68,28 +74,37 @@ void do_listen(net::io_context &ioc, tcp::endpoint endpoint,
 
     const TargetInfo &nextTarget = algorithm->getNext();
 
-    beast::tcp_stream target_stream{ioc};
-    target_stream.async_connect(nextTarget.resolver_results, yield[ec]);
-    boost::asio::spawn(acceptor.get_executor(),
-                       std::bind(&do_session,
-                                 beast::tcp_stream(std::move(client_socket)),
-                                 std::move(target_stream),
-                                 std::move(nextTarget), std::placeholders::_1));
+    std::shared_ptr<Transport> transport;
+    if (nextTarget.version == 11) {
+      transport = std::make_shared<HTTPSTransport>(
+          beast::ssl_stream<beast::tcp_stream>(ioc, ctx));
+    } else {
+      transport = std::make_shared<HTTPTransport>(beast::tcp_stream(ioc));
+    }
+    transport->connect(nextTarget, ec, yield);
+
+    boost::asio::spawn(
+        acceptor.get_executor(),
+        std::bind(&do_session, beast::tcp_stream(std::move(client_socket)),
+                  transport, std::move(nextTarget), std::placeholders::_1));
   }
 }
 
-server::server(int threads) : threads{threads}, ioc(threads) {}
+server::server(int threads) : threads{threads}, ioc(threads) {
+  ctx.set_default_verify_paths();
+  ctx.set_verify_mode(ssl::verify_peer);
+}
 void server::run(
     std::string_view host, std::string_view port, AlgorithmInfo info,
-    std::vector<std::pair<std::string_view, std::string_view>> targets_addrs) {
+    std::vector<std::tuple<std::string_view, std::string_view, unsigned>>
+        targets_addrs) {
   tcp::resolver resolver(ioc);
 
   std::vector<TargetInfo> targets;
   for (std::size_t i = 0; i != targets_addrs.size(); ++i) {
-    targets.push_back(
-        TargetInfo{targets_addrs[i].first, targets_addrs[i].second,
-                   std::move(resolver.resolve(targets_addrs[i].first,
-                                              targets_addrs[i].second))});
+    auto [domain, port, version] = targets_addrs[i];
+    targets.push_back(TargetInfo{domain, port, version,
+                                 std::move(resolver.resolve(domain, port))});
   }
 
   std::shared_ptr<Algorithm> algorithm;
@@ -105,9 +120,9 @@ void server::run(
   auto endpoint =
       tcp::endpoint{net::ip::make_address(host),
                     static_cast<unsigned short>(std::atoi(port.data()))};
-  boost::asio::spawn(ioc,
-                     std::bind(&do_listen, std::ref(ioc), endpoint,
-                               std::ref(algorithm), std::placeholders::_1));
+  boost::asio::spawn(ioc, std::bind(&do_listen, std::ref(ioc), std::ref(ctx),
+                                    endpoint, std::ref(algorithm),
+                                    std::placeholders::_1));
 
   std::vector<std::thread> v;
   v.reserve(threads - 1);

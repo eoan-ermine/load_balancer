@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -51,11 +52,13 @@ int driver::run() {
     return vm.count("help") ? EXIT_SUCCESS : EXIT_FAILURE;
   }
 
-  std::vector<std::pair<std::string_view, std::string_view>> targets;
+  std::vector<std::tuple<std::string_view, std::string_view, unsigned>> targets;
   for (std::size_t idx = 0, size = args.target_hosts.size(); idx != size;
        ++idx) {
-    targets.push_back(std::make_pair(std::string_view(args.target_hosts[idx]),
-                                     std::string_view(args.target_ports[idx])));
+    targets.push_back(
+        std::make_tuple(std::string_view(args.target_hosts[idx]),
+                        std::string_view(args.target_ports[idx]),
+                        (args.target_ports[idx] == "443" ? 11 : 10)));
   }
   load_balancer::server{}.run(
       args.listener_host, args.listener_port,
