@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/beast/core.hpp>
+#include <boost/beast/ssl.hpp>
+
 #include <load_balancer/server/transports/transport.hpp>
 
 namespace eoanermine {
@@ -7,27 +10,27 @@ namespace eoanermine {
 namespace load_balancer {
 
 class HTTPSTransport : public Transport {
-  beast::ssl_stream<beast::tcp_stream> stream;
+  boost::beast::ssl_stream<boost::beast::tcp_stream> stream;
 
 public:
-  HTTPSTransport(beast::ssl_stream<beast::tcp_stream> &&stream)
+  HTTPSTransport(boost::beast::ssl_stream<boost::beast::tcp_stream> &&stream)
       : stream(std::move(stream)) {}
   void connect(const TargetInfo &target, boost::beast::error_code &ec,
                boost::asio::yield_context yield) override {
     if (!SSL_set_tlsext_host_name(stream.native_handle(),
                                   target.domain.data())) {
       ec.assign(static_cast<int>(::ERR_get_error()),
-                net::error::get_ssl_category());
+                boost::asio::error::get_ssl_category());
       std::cerr << ec.message() << "\n";
       return;
     }
-    beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    boost::beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
     get_lowest_layer(stream).async_connect(target.resolver_results, yield[ec]);
     if (ec)
       return fail(ec, "connect");
 
-    beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
-    stream.async_handshake(ssl::stream_base::client, yield[ec]);
+    boost::beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    stream.async_handshake(boost::asio::ssl::stream_base::client, yield[ec]);
     if (ec)
       return fail(ec, "handshake");
   }
@@ -48,7 +51,7 @@ public:
   void disconnect(boost::beast::error_code &ec,
                   boost::asio::yield_context yield) override {
     stream.async_shutdown(yield[ec]);
-    if (ec == net::error::eof) {
+    if (ec == boost::asio::error::eof) {
       ec = {};
     }
     if (ec)
