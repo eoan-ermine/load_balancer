@@ -4,7 +4,8 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-RoundRobin::RoundRobin(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets)
+RoundRobin::RoundRobin(
+    std::vector<boost::asio::ip::tcp::resolver::results_type> &targets)
     : targets(targets) {
   for (std::size_t i = 0; i != targets.size(); ++i) {
     targetsIdx.push(i);

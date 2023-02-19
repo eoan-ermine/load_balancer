@@ -1,8 +1,8 @@
 #pragma once
 
-#include <boost/beast/core.hpp>
-#include <boost/asio/spawn.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/spawn.hpp>
+#include <boost/beast/core.hpp>
 
 #include <string_view>
 #include <thread>
@@ -28,7 +28,9 @@ class server {
 
 public:
   server(int threads = std::thread::hardware_concurrency());
-  void run(std::string_view host, std::string_view port, AlgorithmInfo info, std::vector<std::pair<std::string_view, std::string_view>> targets_addrs);
+  void
+  run(std::string_view host, std::string_view port, AlgorithmInfo info,
+      std::vector<std::pair<std::string_view, std::string_view>> targets_addrs);
 };
 
 } // namespace load_balancer

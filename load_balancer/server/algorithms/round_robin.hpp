@@ -15,7 +15,8 @@ private:
   boost::lockfree::queue<std::size_t, boost::lockfree::capacity<64>> targetsIdx;
 
 public:
-  RoundRobin(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets);
+  RoundRobin(
+      std::vector<boost::asio::ip::tcp::resolver::results_type> &targets);
   boost::asio::ip::tcp::resolver::results_type &getNext() override;
   ~RoundRobin();
 };
