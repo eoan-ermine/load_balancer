@@ -66,7 +66,7 @@ void do_listen(net::io_context &ioc, tcp::endpoint endpoint,
     if (ec)
       return fail(ec, "accept");
 
-    TargetInfo &nextTarget = algorithm->getNext();
+    const TargetInfo &nextTarget = algorithm->getNext();
 
     beast::tcp_stream target_stream{ioc};
     target_stream.async_connect(nextTarget.resolver_results, yield[ec]);

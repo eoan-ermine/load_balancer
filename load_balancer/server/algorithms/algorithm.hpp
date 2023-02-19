@@ -12,7 +12,7 @@ namespace load_balancer {
 class Algorithm {
 public:
   enum class Type { ROUND_ROBIN, CONSTANT };
-  virtual TargetInfo &getNext() = 0;
+  virtual const TargetInfo &getNext() = 0;
   virtual ~Algorithm();
 };
 

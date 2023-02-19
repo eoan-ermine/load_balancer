@@ -12,7 +12,7 @@ private:
 
 public:
   Constant(TargetInfo &target);
-  TargetInfo &getNext() override;
+  const TargetInfo &getNext() override;
   ~Constant();
 };
 

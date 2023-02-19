@@ -16,7 +16,7 @@ private:
 
 public:
   RoundRobin(std::vector<TargetInfo> &targets);
-  TargetInfo &getNext() override;
+  const TargetInfo &getNext() override;
   ~RoundRobin();
 };
 
