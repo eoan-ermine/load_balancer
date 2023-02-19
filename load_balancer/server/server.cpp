@@ -29,7 +29,7 @@ void do_session(beast::tcp_stream &client_stream,
   beast::flat_buffer buffer;
   buffer.reserve(2048);
 
-  relay<true>(target_transport, client_stream, target_info, buffer, ec, yield);
+  relay(target_transport, client_stream, target_info, buffer, ec, yield);
 
   http::response<http::dynamic_body> res;
   target_transport->async_read(buffer, res, ec, yield);
@@ -75,7 +75,7 @@ void do_listen(net::io_context &ioc, ssl::context &ctx, tcp::endpoint endpoint,
     const TargetInfo &nextTarget = algorithm->getNext();
 
     std::shared_ptr<Transport> transport;
-    if (nextTarget.version == 11) {
+    if (nextTarget.use_https) {
       transport = std::make_shared<HTTPSTransport>(
           beast::ssl_stream<beast::tcp_stream>(ioc, ctx));
     } else {
@@ -96,14 +96,14 @@ server::server(int threads) : threads{threads}, ioc(threads) {
 }
 void server::run(
     std::string_view host, std::string_view port, AlgorithmInfo info,
-    std::vector<std::tuple<std::string_view, std::string_view, unsigned>>
+    std::vector<std::tuple<std::string_view, std::string_view, bool>>
         targets_addrs) {
   tcp::resolver resolver(ioc);
 
   std::vector<TargetInfo> targets;
   for (std::size_t i = 0; i != targets_addrs.size(); ++i) {
-    auto [domain, port, version] = targets_addrs[i];
-    targets.push_back(TargetInfo{domain, port, version,
+    auto [domain, port, use_https] = targets_addrs[i];
+    targets.push_back(TargetInfo{domain, port, use_https,
                                  std::move(resolver.resolve(domain, port))});
   }
 

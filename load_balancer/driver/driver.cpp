@@ -52,13 +52,12 @@ int driver::run() {
     return vm.count("help") ? EXIT_SUCCESS : EXIT_FAILURE;
   }
 
-  std::vector<std::tuple<std::string_view, std::string_view, unsigned>> targets;
+  std::vector<std::tuple<std::string_view, std::string_view, bool>> targets;
   for (std::size_t idx = 0, size = args.target_hosts.size(); idx != size;
        ++idx) {
-    targets.push_back(
-        std::make_tuple(std::string_view(args.target_hosts[idx]),
-                        std::string_view(args.target_ports[idx]),
-                        (args.target_ports[idx] == "443" ? 11 : 10)));
+    targets.push_back(std::make_tuple(std::string_view(args.target_hosts[idx]),
+                                      std::string_view(args.target_ports[idx]),
+                                      args.target_ports[idx] == "443"));
   }
   load_balancer::server{}.run(
       args.listener_host, args.listener_port,

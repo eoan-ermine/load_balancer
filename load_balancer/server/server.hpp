@@ -36,7 +36,7 @@ class server {
 public:
   server(int threads = std::thread::hardware_concurrency());
   void run(std::string_view host, std::string_view port, AlgorithmInfo info,
-           std::vector<std::tuple<std::string_view, std::string_view, unsigned>>
+           std::vector<std::tuple<std::string_view, std::string_view, bool>>
                targets_addrs);
 };
 

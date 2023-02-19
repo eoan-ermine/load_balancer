@@ -15,17 +15,18 @@ public:
                boost::asio::yield_context yield) override {
     stream.async_connect(target.resolver_results, yield[ec]);
   }
-  void async_write_header(
-      boost::beast::http::serializer<true, boost::beast::http::buffer_body,
-                                     boost::beast::http::fields>
-          serializer,
-      boost::beast::error_code &ec, boost::asio::yield_context yield) override {
+  void async_write_header(SerializerType &serializer,
+                          boost::beast::error_code &ec,
+                          boost::asio::yield_context yield) override {
     boost::beast::http::async_write_header(stream, serializer, yield[ec]);
   }
-  void async_read(
-      boost::beast::flat_buffer &buffer,
-      boost::beast::http::response<boost::beast::http::dynamic_body> &response,
-      boost::beast::error_code &ec, boost::asio::yield_context yield) override {
+  void async_write(SerializerType &serializer, boost::beast::error_code &ec,
+                   boost::asio::yield_context yield) override {
+    boost::beast::http::async_write(stream, serializer, yield[ec]);
+  }
+  void async_read(boost::beast::flat_buffer &buffer, ResponseType &response,
+                  boost::beast::error_code &ec,
+                  boost::asio::yield_context yield) override {
     boost::beast::http::async_read(stream, buffer, response, yield[ec]);
   }
   void disconnect(boost::beast::error_code &ec,

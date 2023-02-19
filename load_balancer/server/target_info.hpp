@@ -10,7 +10,7 @@ namespace load_balancer {
 struct TargetInfo {
   std::string_view domain;
   std::string_view port;
-  unsigned version;
+  bool use_https;
   boost::asio::ip::tcp::resolver::results_type resolver_results;
 };
 

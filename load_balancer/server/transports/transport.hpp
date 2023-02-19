@@ -9,17 +9,23 @@ namespace load_balancer {
 
 class Transport {
 public:
+  using SerializerType =
+      boost::beast::http::serializer<true, boost::beast::http::dynamic_body,
+                                     boost::beast::http::fields>;
+  using ResponseType =
+      boost::beast::http::response<boost::beast::http::dynamic_body>;
+
   virtual void connect(const TargetInfo &target, boost::beast::error_code &ec,
                        boost::asio::yield_context yield) = 0;
-  virtual void async_write_header(
-      boost::beast::http::serializer<true, boost::beast::http::buffer_body,
-                                     boost::beast::http::fields>
-          serializer,
-      boost::beast::error_code &ec, boost::asio::yield_context yield) = 0;
-  virtual void async_read(
-      boost::beast::flat_buffer &buffer,
-      boost::beast::http::response<boost::beast::http::dynamic_body> &response,
-      boost::beast::error_code &ec, boost::asio::yield_context yield) = 0;
+  virtual void async_write_header(SerializerType &serializer,
+                                  boost::beast::error_code &ec,
+                                  boost::asio::yield_context yield) = 0;
+  virtual void async_write(SerializerType &serializer,
+                           boost::beast::error_code &ec,
+                           boost::asio::yield_context yield) = 0;
+  virtual void async_read(boost::beast::flat_buffer &buffer,
+                          ResponseType &response, boost::beast::error_code &ec,
+                          boost::asio::yield_context yield) = 0;
   virtual void disconnect(boost::beast::error_code &ec,
                           boost::asio::yield_context yield) = 0;
   virtual ~Transport() {}
