@@ -1,6 +1,6 @@
 # load_balancer
 
-Simple load balancer written with Boost.Asio. **Only GET requests are supported so far**.
+Simple load balancer written with Boost.Asio.
 
 ## Requirements
 
