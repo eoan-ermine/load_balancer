@@ -8,6 +8,7 @@ HTTP GET requests forwarding to HTTP(S) targets is supported.
 
 * **C++17**: Robust support for most language features.
 * **Boost**: Boost.Beast, Boost.Asio, Boost.Coroutine and Boost.ProgramOptions.
+* **LibSSL**: HTTPS support
 
 ## Building
 
@@ -41,4 +42,25 @@ services:
         ports:
             - 80:80
 
+```
+
+## Developer guide
+
+### Requirements
+
+* **clang-format** (optional) — formatting
+* **clang-tidy** (optional) — linting
+
+### Usage
+
+Format code using clang-format:
+
+```
+make format
+```
+
+Run clang-tidy over project codebase:
+
+```
+make tidy
 ```
