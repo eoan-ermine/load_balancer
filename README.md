@@ -2,6 +2,8 @@
 
 Simple load balancer written with Boost.Asio.
 
+HTTP GET requests forwarding to HTTP(S) targets is supported.
+
 ## Requirements
 
 * **C++17**: Robust support for most language features.
@@ -22,7 +24,7 @@ The code below will start a server listening on address `127.0.0.1:80` and proxy
 ```bash
 ./load_balancer --host 127.0.0.1 --port 80 \
                 --target_host example.com --target_port 80 \
-                --target_host wikipedia.org --target_port 80
+                --target_host wikipedia.org --target_port 443
 ```
 
 ### With docker-compose
@@ -35,7 +37,7 @@ services:
         command: >
             ./load_balancer --host 0.0.0.0 --port 80
                             --target_host example.com --target_port 80
-                            --target_host wikipedia.org --target_port 80
+                            --target_host wikipedia.org --target_port 443
         ports:
             - 80:80
 
