@@ -4,11 +4,11 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-Constant::Constant(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets, std::size_t targetIdx)
-  : target(targets[targetIdx]) {}
+Constant::Constant(boost::asio::ip::tcp::resolver::results_type &target)
+    : target(target) {}
 
 boost::asio::ip::tcp::resolver::results_type &Constant::getNext() {
-	return target;
+  return target;
 };
 
 Constant::~Constant() {}

@@ -74,11 +74,10 @@ void do_listen(net::io_context &ioc, tcp::endpoint endpoint,
   }
 }
 
-server::server(int threads)
-    : threads{threads}, ioc(threads) {}
-void server::run(std::string_view host, std::string_view port, AlgorithmInfo info,
-         std::vector<std::pair<std::string_view, std::string_view>>
-             targets_addrs) {
+server::server(int threads) : threads{threads}, ioc(threads) {}
+void server::run(
+    std::string_view host, std::string_view port, AlgorithmInfo info,
+    std::vector<std::pair<std::string_view, std::string_view>> targets_addrs) {
   tcp::resolver resolver(ioc);
 
   std::vector<tcp::resolver::results_type> targets;
@@ -93,7 +92,7 @@ void server::run(std::string_view host, std::string_view port, AlgorithmInfo inf
     algorithm = std::make_shared<RoundRobin>(targets);
     break;
   case Algorithm::Type::CONSTANT:
-    algorithm = std::make_shared<Constant>(targets, info.targetIdx);
+    algorithm = std::make_shared<Constant>(targets[info.targetIdx]);
     break;
   }
 

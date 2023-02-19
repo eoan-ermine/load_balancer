@@ -11,7 +11,7 @@ private:
   boost::asio::ip::tcp::resolver::results_type &target;
 
 public:
-  Constant(std::vector<boost::asio::ip::tcp::resolver::results_type> &targets, std::size_t targetIdx);
+  Constant(boost::asio::ip::tcp::resolver::results_type &target);
   boost::asio::ip::tcp::resolver::results_type &getNext() override;
   ~Constant();
 };
