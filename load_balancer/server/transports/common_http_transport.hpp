@@ -7,7 +7,7 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-class Transport {
+class CommonHTTPTransport {
 public:
   using SerializerType =
       boost::beast::http::serializer<true, boost::beast::http::dynamic_body,
@@ -28,7 +28,7 @@ public:
                           boost::asio::yield_context yield) = 0;
   virtual void disconnect(boost::beast::error_code &ec,
                           boost::asio::yield_context yield) = 0;
-  virtual ~Transport() {}
+  virtual ~CommonHTTPTransport() {}
 };
 
 } // namespace load_balancer

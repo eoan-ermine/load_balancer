@@ -7,7 +7,7 @@
 
 #include <load_balancer/server/relay.hpp>
 #include <load_balancer/server/target_info.hpp>
-#include <load_balancer/server/transports/transport.hpp>
+#include <load_balancer/server/transports/common_http_transport.hpp>
 #include <load_balancer/server/transports/http_transport.hpp>
 #include <load_balancer/server/transports/https_transport.hpp>
 
@@ -31,7 +31,7 @@ public:
 	}
 	void session(
 		beast::tcp_stream &client_stream,
-		std::shared_ptr<Transport> target_transport,
+		std::shared_ptr<CommonHTTPTransport> target_transport,
 		TargetInfo &target_info, net::yield_context yield
 	) {
 		beast::error_code ec;
@@ -78,7 +78,7 @@ public:
 
 			const TargetInfo &nextTarget = algorithm->getNext();
 
-			std::shared_ptr<Transport> transport;
+			std::shared_ptr<CommonHTTPTransport> transport;
 			if (nextTarget.use_https) {
 			  transport = std::make_shared<HTTPSTransport>(
 			      beast::ssl_stream<beast::tcp_stream>(ioc, ctx));
