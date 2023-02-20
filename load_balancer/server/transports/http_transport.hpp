@@ -12,7 +12,8 @@ class HTTPTransport : public CommonHTTPTransport {
   boost::beast::tcp_stream stream;
 
 public:
-  HTTPTransport(boost::beast::tcp_stream &&stream) : stream(std::move(stream)) {}
+  HTTPTransport(boost::beast::tcp_stream &&stream)
+      : stream(std::move(stream)) {}
   void connect(const TargetInfo &target, boost::beast::error_code &ec,
                boost::asio::yield_context yield) override {
     stream.async_connect(target.resolver_results, yield[ec]);

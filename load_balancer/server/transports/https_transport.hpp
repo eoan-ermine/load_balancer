@@ -24,12 +24,14 @@ public:
       std::cerr << ec.message() << "\n";
       return;
     }
-    boost::beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    boost::beast::get_lowest_layer(stream).expires_after(
+        std::chrono::seconds(30));
     get_lowest_layer(stream).async_connect(target.resolver_results, yield[ec]);
     if (ec)
       return fail(ec, "connect");
 
-    boost::beast::get_lowest_layer(stream).expires_after(std::chrono::seconds(30));
+    boost::beast::get_lowest_layer(stream).expires_after(
+        std::chrono::seconds(30));
     stream.async_handshake(boost::asio::ssl::stream_base::client, yield[ec]);
     if (ec)
       return fail(ec, "handshake");

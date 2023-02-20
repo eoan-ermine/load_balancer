@@ -14,9 +14,10 @@ namespace eoanermine {
 namespace load_balancer {
 
 template <class AsyncReadStream, class DynamicBuffer>
-void relay(std::shared_ptr<CommonHTTPTransport> &output_transport, AsyncReadStream &input,
-           TargetInfo &target_info, DynamicBuffer &buffer,
-           boost::beast::error_code &ec, boost::asio::yield_context yield) {
+void relay(std::shared_ptr<CommonHTTPTransport> &output_transport,
+           AsyncReadStream &input, TargetInfo &target_info,
+           DynamicBuffer &buffer, boost::beast::error_code &ec,
+           boost::asio::yield_context yield) {
   boost::beast::http::request<boost::beast::http::dynamic_body> request;
   boost::beast::http::async_read(input, buffer, request, yield[ec]);
   if (ec)
