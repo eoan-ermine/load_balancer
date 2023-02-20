@@ -1,35 +1,35 @@
 #pragma once
 
 #include <boost/asio/spawn.hpp>
-#include <boost/beast/core/make_printable.hpp>
 
 #include <memory>
 
 #include <load_balancer/common.hpp>
-#include <load_balancer/server/target_info.hpp>
 #include <load_balancer/server/transports/common_http_transport.hpp>
 
 namespace eoanermine {
 
 namespace load_balancer {
 
-template <class AsyncReadStream, class DynamicBuffer>
-void relay(std::shared_ptr<CommonHTTPTransport> &output_transport,
-           AsyncReadStream &input, TargetInfo &target_info,
+template <bool isRequest, class DynamicBuffer,
+          class Transform =
+              decltype([](CommonHTTPTransport::MessageType<isRequest> &) {})>
+void relay(std::shared_ptr<CommonHTTPTransport> &input_transport,
+           std::shared_ptr<CommonHTTPTransport> &output_transport,
            DynamicBuffer &buffer, boost::beast::error_code &ec,
-           boost::asio::yield_context yield) {
-  boost::beast::http::request<boost::beast::http::dynamic_body> request;
-  boost::beast::http::async_read(input, buffer, request, yield[ec]);
+           boost::asio::yield_context yield,
+           const Transform &transform = Transform()) {
+  CommonHTTPTransport::MessageType<isRequest> message;
+  input_transport->async_read(buffer, message, ec, yield);
   if (ec)
-    return fail(ec, "request read");
+    return fail(ec, "message read");
 
-  request.set("Host", boost::string_view{target_info.domain.data(),
-                                         target_info.domain.size()});
+  transform(message);
 
-  CommonHTTPTransport::SerializerType serializer{request};
+  CommonHTTPTransport::SerializerType<isRequest> serializer{message};
   output_transport->async_write(serializer, ec, yield);
   if (ec)
-    return fail(ec, "request write");
+    return fail(ec, "message write");
 }
 
 } // namespace load_balancer

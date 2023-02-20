@@ -30,25 +30,24 @@ public:
     ctx.set_default_verify_paths();
     ctx.set_verify_mode(ssl::verify_peer);
   }
-  void session(beast::tcp_stream &client_stream,
+  void session(std::shared_ptr<CommonHTTPTransport> client_transport,
                std::shared_ptr<CommonHTTPTransport> target_transport,
                TargetInfo &target_info, net::yield_context yield) {
     beast::error_code ec;
     beast::flat_buffer buffer;
     buffer.reserve(2048);
 
-    relay(target_transport, client_stream, target_info, buffer, ec, yield);
+    relay<true>(client_transport, target_transport, buffer, ec, yield,
+                [&target_info](auto &message) {
+                  message.set("Host",
+                              boost::string_view{target_info.domain.data(),
+                                                 target_info.domain.size()});
+                  message.keep_alive(true);
+                });
+    relay<false>(target_transport, client_transport, buffer, ec, yield);
 
-    http::response<http::dynamic_body> response;
-    target_transport->async_read(buffer, response, ec, yield);
-    if (ec)
-      return fail(ec, "response read");
-
-    http::async_write(client_stream, response, yield[ec]);
-    if (ec)
-      return fail(ec, "response write");
-
-    client_stream.socket().shutdown(tcp::socket::shutdown_send, ec);
+    client_transport->get_stream().socket().shutdown(tcp::socket::shutdown_send,
+                                                     ec);
     target_transport->disconnect(ec, yield);
   }
   void listen(tcp::endpoint endpoint, std::shared_ptr<Algorithm> &algorithm,
@@ -80,19 +79,23 @@ public:
 
       const TargetInfo &nextTarget = algorithm->getNext();
 
-      std::shared_ptr<CommonHTTPTransport> transport;
+      std::shared_ptr<CommonHTTPTransport> client_transport =
+          std::make_shared<HTTPTransport>(
+              beast::tcp_stream(std::move(client_socket)));
+      std::shared_ptr<CommonHTTPTransport> target_transport;
       if (nextTarget.use_https) {
-        transport = std::make_shared<HTTPSTransport>(
+        target_transport = std::make_shared<HTTPSTransport>(
             beast::ssl_stream<beast::tcp_stream>(ioc, ctx));
       } else {
-        transport = std::make_shared<HTTPTransport>(beast::tcp_stream(ioc));
+        target_transport =
+            std::make_shared<HTTPTransport>(beast::tcp_stream(ioc));
       }
-      transport->connect(nextTarget, ec, yield);
+      target_transport->connect(nextTarget, ec, yield);
 
       boost::asio::spawn(acceptor.get_executor(),
                          std::bind(&HTTPExtension::session, this,
-                                   beast::tcp_stream(std::move(client_socket)),
-                                   transport, std::move(nextTarget),
+                                   client_transport, target_transport,
+                                   std::move(nextTarget),
                                    std::placeholders::_1));
     }
   }

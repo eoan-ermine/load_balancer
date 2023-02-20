@@ -36,15 +36,6 @@ public:
     if (ec)
       return fail(ec, "handshake");
   }
-  void async_write(SerializerType &serializer, boost::beast::error_code &ec,
-                   boost::asio::yield_context yield) override {
-    boost::beast::http::async_write(stream, serializer, yield[ec]);
-  }
-  void async_read(boost::beast::flat_buffer &buffer, ResponseType &response,
-                  boost::beast::error_code &ec,
-                  boost::asio::yield_context yield) override {
-    boost::beast::http::async_read(stream, buffer, response, yield[ec]);
-  }
   void disconnect(boost::beast::error_code &ec,
                   boost::asio::yield_context yield) override {
     stream.async_shutdown(yield[ec]);
@@ -54,6 +45,14 @@ public:
     if (ec)
       return fail(ec, "shutdown");
   }
+
+  ASYNC_READ_IMPLEMENTATION(false)
+  ASYNC_READ_IMPLEMENTATION(true)
+
+  ASYNC_WRITE_IMPLEMENTATION(false)
+  ASYNC_WRITE_IMPLEMENTATION(true)
+
+  boost::beast::tcp_stream &get_stream() { return stream.next_layer(); }
 };
 
 } // namespace load_balancer
