@@ -36,11 +36,6 @@ public:
     if (ec)
       return fail(ec, "handshake");
   }
-  void async_write_header(SerializerType &serializer,
-                          boost::beast::error_code &ec,
-                          boost::asio::yield_context yield) override {
-    boost::beast::http::async_write_header(stream, serializer, yield[ec]);
-  }
   void async_write(SerializerType &serializer, boost::beast::error_code &ec,
                    boost::asio::yield_context yield) override {
     boost::beast::http::async_write(stream, serializer, yield[ec]);

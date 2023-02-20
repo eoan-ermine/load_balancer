@@ -18,11 +18,6 @@ public:
                boost::asio::yield_context yield) override {
     stream.async_connect(target.resolver_results, yield[ec]);
   }
-  void async_write_header(SerializerType &serializer,
-                          boost::beast::error_code &ec,
-                          boost::asio::yield_context yield) override {
-    boost::beast::http::async_write_header(stream, serializer, yield[ec]);
-  }
   void async_write(SerializerType &serializer, boost::beast::error_code &ec,
                    boost::asio::yield_context yield) override {
     boost::beast::http::async_write(stream, serializer, yield[ec]);

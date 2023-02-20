@@ -17,9 +17,6 @@ public:
 
   virtual void connect(const TargetInfo &target, boost::beast::error_code &ec,
                        boost::asio::yield_context yield) = 0;
-  virtual void async_write_header(SerializerType &serializer,
-                                  boost::beast::error_code &ec,
-                                  boost::asio::yield_context yield) = 0;
   virtual void async_write(SerializerType &serializer,
                            boost::beast::error_code &ec,
                            boost::asio::yield_context yield) = 0;
