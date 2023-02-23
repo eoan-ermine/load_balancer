@@ -46,13 +46,10 @@ public:
       return fail(ec, "shutdown");
   }
 
-  ASYNC_READ_IMPLEMENTATION(false)
-  ASYNC_READ_IMPLEMENTATION(true)
-
-  ASYNC_WRITE_IMPLEMENTATION(false)
-  ASYNC_WRITE_IMPLEMENTATION(true)
-
   boost::beast::tcp_stream &get_stream() { return stream.next_layer(); }
+  boost::variant<std::reference_wrapper<boost::beast::tcp_stream>, std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>> get_original_stream() {
+    return std::reference_wrapper(stream);
+  }
 };
 
 } // namespace load_balancer

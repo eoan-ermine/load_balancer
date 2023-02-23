@@ -3,19 +3,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 
-#define ASYNC_WRITE_IMPLEMENTATION(IS_REQUEST)                                 \
-  void async_write(SerializerType<IS_REQUEST> &serializer,                     \
-                   boost::beast::error_code &ec,                               \
-                   boost::asio::yield_context yield) {                         \
-    boost::beast::http::async_write(stream, serializer, yield[ec]);            \
-  }
-
-#define ASYNC_READ_IMPLEMENTATION(IS_REQUEST)                                  \
-  void async_read(                                                             \
-      boost::beast::flat_buffer &buffer, MessageType<IS_REQUEST> &message,     \
-      boost::beast::error_code &ec, boost::asio::yield_context yield) {        \
-    boost::beast::http::async_read(stream, buffer, message, yield[ec]);        \
-  }
+#include <boost/variant.hpp>
+#include <functional>
 
 namespace eoanermine {
 
@@ -34,21 +23,33 @@ public:
                        boost::asio::yield_context yield) = 0;
 
   virtual boost::beast::tcp_stream &get_stream() = 0;
+  virtual boost::variant<std::reference_wrapper<boost::beast::tcp_stream>, std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>> get_original_stream() = 0;
 
-  virtual void async_write(SerializerType<true> &serializer,
-                           boost::beast::error_code &ec,
-                           boost::asio::yield_context yield) = 0;
-  virtual void async_write(SerializerType<false> &serializer,
-                           boost::beast::error_code &ec,
-                           boost::asio::yield_context yield) = 0;
-  virtual void async_read(boost::beast::flat_buffer &buffer,
-                          MessageType<true> &message,
-                          boost::beast::error_code &ec,
-                          boost::asio::yield_context yield) = 0;
-  virtual void async_read(boost::beast::flat_buffer &buffer,
-                          MessageType<false> &message,
-                          boost::beast::error_code &ec,
-                          boost::asio::yield_context yield) = 0;
+  template <bool isRequest>
+  void async_write(SerializerType<isRequest> &serializer,
+                   boost::beast::error_code &ec,
+                   boost::asio::yield_context yield) {
+    auto original_stream = this->get_original_stream();
+    if (std::reference_wrapper<boost::beast::tcp_stream>* tcp_stream = boost::get<std::reference_wrapper<boost::beast::tcp_stream>>(&original_stream)) {
+      boost::beast::http::async_write(tcp_stream->get(), serializer, yield[ec]);
+    }
+    if (std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>* ssl_stream = boost::get<std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>>(&original_stream)) {
+      boost::beast::http::async_write(ssl_stream->get(), serializer, yield[ec]);
+    }
+  }
+  template <bool isRequest>
+  void async_read(boost::beast::flat_buffer &buffer,
+                  MessageType<isRequest> &message,
+                  boost::beast::error_code &ec,
+                  boost::asio::yield_context yield) {
+    auto original_stream = this->get_original_stream();
+    if (std::reference_wrapper<boost::beast::tcp_stream>* tcp_stream = boost::get<std::reference_wrapper<boost::beast::tcp_stream>>(&original_stream)) {
+      boost::beast::http::async_read(tcp_stream->get(), buffer, message, yield[ec]);
+    }
+    if (std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>* ssl_stream = boost::get<std::reference_wrapper<boost::beast::ssl_stream<boost::beast::tcp_stream>>>(&original_stream)) {
+      boost::beast::http::async_read(ssl_stream->get(), buffer, message, yield[ec]);
+    }
+  }
 
   virtual void disconnect(boost::beast::error_code &ec,
                           boost::asio::yield_context yield) = 0;
