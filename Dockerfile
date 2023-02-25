@@ -3,12 +3,10 @@ FROM gcc:latest as build
 RUN apt-get update && \
 	apt-get install -y \
 		libboost-dev libboost-coroutine-dev libboost-program-options-dev \
-		cmake
+		libssl-dev cmake
 
-ADD ./src/ app/src
-ADD ./include/ app/include
+ADD ./load_balancer/ app/load_balancer
 ADD ./CMakeLists.txt app/CMakeLists.txt
-
 
 WORKDIR /app/build
 

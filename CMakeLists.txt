@@ -9,7 +9,7 @@ find_package(Threads REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.71 COMPONENTS coroutine program_options REQUIRED)
 
-find_package(OpenSSL 3.0)
+find_package(OpenSSL)
 
 add_executable(load_balancer
 	load_balancer/main.cpp load_balancer/driver/driver.cpp load_balancer/server/server.cpp
