@@ -11,7 +11,7 @@ namespace load_balancer {
 
 class Algorithm {
 public:
-  enum class Type { ROUND_ROBIN, CONSTANT };
+  enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN };
   virtual const TargetInfo &getNext() = 0;
   virtual ~Algorithm();
 };
@@ -22,6 +22,7 @@ std::ostream &operator<<(std::ostream &out, const Algorithm::Type &algorithm);
 struct AlgorithmInfo {
   Algorithm::Type type;
   std::size_t targetIdx;
+  std::size_t stickFactor;
 };
 
 } // namespace load_balancer

@@ -6,6 +6,7 @@
 #include <load_balancer/common.hpp>
 #include <load_balancer/server/algorithms/constant.hpp>
 #include <load_balancer/server/algorithms/round_robin.hpp>
+#include <load_balancer/server/algorithms/sticky_round_robin.hpp>
 
 #include <load_balancer/server/extensions/http_extension.hpp>
 #include <load_balancer/server/server.hpp>
@@ -34,11 +35,14 @@ void server::run(
 
   std::shared_ptr<Algorithm> algorithm;
   switch (info.type) {
+  case Algorithm::Type::CONSTANT:
+    algorithm = std::make_shared<Constant>(targets[info.targetIdx]);
+    break;
   case Algorithm::Type::ROUND_ROBIN:
     algorithm = std::make_shared<RoundRobin>(targets);
     break;
-  case Algorithm::Type::CONSTANT:
-    algorithm = std::make_shared<Constant>(targets[info.targetIdx]);
+  case Algorithm::Type::STICKY_ROUND_ROBIN:
+    algorithm = std::make_shared<StickyRoundRobin>(targets, info.stickFactor);
     break;
   }
 

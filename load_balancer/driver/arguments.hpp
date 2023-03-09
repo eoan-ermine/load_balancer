@@ -20,6 +20,8 @@ struct CLIArguments {
   /* Optional arguments */
   std::size_t
       target_idx; // Must be specified if `balancing_algorithm` is `constant`
+  std::size_t
+      stick_factor; // Must be specified if `balancing_algorithm` is `sticky_round_robin`
 };
 
 } // namespace load_balancer
