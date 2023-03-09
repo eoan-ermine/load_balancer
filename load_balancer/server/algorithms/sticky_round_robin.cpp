@@ -4,11 +4,11 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-StickyRoundRobbin::StickyRoundRobbin(std::vector<TargetInfo> &targets, std::size_t stickFactor) : RoundRobin(targets) {
+StickyRoundRobin::StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t stickFactor) : RoundRobin(targets) {
   stickFactor = stickFactor;
 }
 
-const TargetInfo &StickyRoundRobbin::getNext() {
+const TargetInfo &StickyRoundRobin::getNext() {
   static std::size_t idx;
   if (!(stickCounter--)) {
     targetsIdx.pop(idx);
@@ -18,7 +18,7 @@ const TargetInfo &StickyRoundRobbin::getNext() {
   return targets[idx];
 };
 
-StickyRoundRobbin::~StickyRoundRobbin() {}
+StickyRoundRobin::~StickyRoundRobin() {}
 
 } // namespace load_balancer
 

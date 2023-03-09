@@ -6,13 +6,13 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-class StickyRoundRobbin : public RoundRobin {
+class StickyRoundRobin : public RoundRobin {
   int stickFactor, stickCounter{0};
 
 public:
-  StickyRoundRobbin(std::vector<TargetInfo> &targets, std::size_t stickFactor);
+  StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t stickFactor);
   const TargetInfo &getNext() override;
-  ~StickyRoundRobbin();
+  ~StickyRoundRobin();
 };
 
 } // namespace load_balancer
