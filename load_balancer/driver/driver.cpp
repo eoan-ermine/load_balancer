@@ -23,8 +23,11 @@ void driver::setup_command_line(int argc, char *argv[]) {
         ("port", po::value<std::string>(&args.listener_port)->default_value(args.listener_port), "listener port")
         ("target_host", po::value<std::vector<std::string>>(&args.target_hosts), "target host address")
         ("target_port", po::value<std::vector<std::string>>(&args.target_ports), "target port")
-        ("algorithm", po::value<Algorithm::Type>(&args.balancing_algorithm)->default_value(args.balancing_algorithm), "selected balancing algorithm. Available algorithms: round_robin, constant")
-        ("target", po::value<std::size_t>(&args.target_idx), "selected target, must be specified if selected algorithm is constant");
+        ("algorithm", po::value<Algorithm::Type>(&args.balancing_algorithm)->default_value(args.balancing_algorithm), 
+            "selected balancing algorithm. Available algorithms: constant, round_robin, sticky_round_robin"
+        )
+        ("target", po::value<std::size_t>(&args.target_idx), "index of selected target, must be specified if selected algorithm is constant (target >= 0)")
+        ("stick_factor", po::value<std::size_t>(&args.stick_factor), "stick factor, must be specified if selected algorithm is sticky_round_robin (stick_factor > 0)");
     po::store(po::command_line_parser(argc, argv).options(desc).positional(pd).run(), vm);
     po::notify(vm);
   // clang-format on
@@ -61,7 +64,7 @@ int driver::run() {
   }
   load_balancer::server{}.run(
       args.listener_host, args.listener_port,
-      AlgorithmInfo{args.balancing_algorithm, args.target_idx}, targets);
+      AlgorithmInfo{args.balancing_algorithm, args.target_idx, args.stick_factor}, targets);
 
   return EXIT_SUCCESS;
 }
