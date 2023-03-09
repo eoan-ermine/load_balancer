@@ -7,7 +7,7 @@ namespace eoanermine {
 namespace load_balancer {
 
 class StickyRoundRobin : public RoundRobin {
-  int stickFactor, stickCounter{0};
+  int stickFactor;
 
 public:
   StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t stickFactor);
