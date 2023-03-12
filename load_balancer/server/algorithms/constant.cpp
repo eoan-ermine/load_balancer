@@ -6,7 +6,7 @@ namespace load_balancer {
 
 Constant::Constant(TargetInfo &target) : target(target) {}
 
-const TargetInfo &Constant::getNext() { return target; };
+const TargetInfo &Constant::getNext(const RequestInfo&) { return target; };
 
 Constant::~Constant() {}
 

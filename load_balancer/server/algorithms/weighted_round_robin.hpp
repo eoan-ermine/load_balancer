@@ -11,7 +11,7 @@ class WeightedRoundRobin : public RoundRobin {
 
 public:
   WeightedRoundRobin(std::vector<TargetInfo> &targets, std::vector<int>& weights);
-  const TargetInfo &getNext() override;
+  const TargetInfo &getNext(const RequestInfo&) override;
   ~WeightedRoundRobin();
 };
 
