@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <load_balancer/server/target_info.hpp>
@@ -11,7 +12,7 @@ namespace load_balancer {
 
 class Algorithm {
 public:
-  enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN };
+  enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN, WEIGHTED_ROUND_ROBIN };
   virtual const TargetInfo &getNext() = 0;
   virtual ~Algorithm();
 };
@@ -23,6 +24,7 @@ struct AlgorithmInfo {
   Algorithm::Type type;
   std::size_t targetIdx;
   std::size_t stickFactor;
+  std::vector<int> weights;
 };
 
 } // namespace load_balancer

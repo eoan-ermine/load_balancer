@@ -13,6 +13,8 @@ std::istream &operator>>(std::istream &in, Algorithm::Type &algorithm) {
     algorithm = Algorithm::Type::ROUND_ROBIN;
   else if (token == "sticky_round_robin")
     algorithm = Algorithm::Type::STICKY_ROUND_ROBIN;
+  else if (token == "weighted_round_robin")
+    algorithm = Algorithm::Type::WEIGHTED_ROUND_ROBIN;
   return in;
 }
 
@@ -23,6 +25,8 @@ std::ostream &operator<<(std::ostream &out, const Algorithm::Type &algorithm) {
     out << "round_robin";
   else if (algorithm == Algorithm::Type::STICKY_ROUND_ROBIN)
     out << "sticky_round_robin";
+  else if (algorithm == Algorithm::Type::WEIGHTED_ROUND_ROBIN)
+    out << "weighted_round_robin";
   return out;
 }
 
