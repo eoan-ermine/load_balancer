@@ -7,7 +7,7 @@ namespace eoanermine {
 namespace load_balancer {
 
 class WeightedRoundRobin : public RoundRobin {
-  std::vector<float> &weights;
+  std::vector<int> &weights;
 
 public:
   WeightedRoundRobin(std::vector<TargetInfo> &targets, std::vector<int>& weights);

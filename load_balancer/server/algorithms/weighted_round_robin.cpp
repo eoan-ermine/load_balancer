@@ -8,15 +8,13 @@ WeightedRoundRobin::WeightedRoundRobin(std::vector<TargetInfo> &targets, std::ve
   : RoundRobin(targets), weights(weights) { }
 
 const TargetInfo &WeightedRoundRobin::getNext() {
-  static std::size_t idx, weightIdx = 0;
+  static std::size_t idx;
   static std::size_t stickCounter = 0;
 
   if (!(stickCounter--)) {
     targetsIdx.pop(idx);
     targetsIdx.push(idx);
-
-    stickCounter = weights[weightIdx] - 1;
-    weightIdx = (weightIdx + 1) % weights.size();
+    stickCounter = weights[idx] - 1;
   }
 
   return targets[idx];
