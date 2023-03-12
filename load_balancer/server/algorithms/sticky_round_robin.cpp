@@ -8,7 +8,7 @@ StickyRoundRobin::StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t
   this->stickFactor = stickFactor - 1;
 }
 
-const TargetInfo &StickyRoundRobin::getNext() {
+const TargetInfo &StickyRoundRobin::getNext(const RequestInfo&) {
   static std::size_t idx;
   static std::size_t stickCounter = 0;
 

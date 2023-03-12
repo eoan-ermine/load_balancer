@@ -7,7 +7,7 @@ namespace load_balancer {
 WeightedRoundRobin::WeightedRoundRobin(std::vector<TargetInfo> &targets, std::vector<int>& weights)
   : RoundRobin(targets), weights(weights) { }
 
-const TargetInfo &WeightedRoundRobin::getNext() {
+const TargetInfo &WeightedRoundRobin::getNext(const RequestInfo&) {
   static std::size_t idx;
   static std::size_t stickCounter = 0;
 

@@ -5,6 +5,7 @@
 
 #include <boost/asio/ip/tcp.hpp>
 #include <load_balancer/server/target_info.hpp>
+#include <load_balancer/server/request_info.hpp>
 
 namespace eoanermine {
 
@@ -13,7 +14,7 @@ namespace load_balancer {
 class Algorithm {
 public:
   enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN, WEIGHTED_ROUND_ROBIN };
-  virtual const TargetInfo &getNext() = 0;
+  virtual const TargetInfo &getNext(const RequestInfo& request) = 0;
   virtual ~Algorithm();
 };
 
