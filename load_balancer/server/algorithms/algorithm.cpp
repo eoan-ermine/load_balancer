@@ -15,6 +15,8 @@ std::istream &operator>>(std::istream &in, Algorithm::Type &algorithm) {
     algorithm = Algorithm::Type::STICKY_ROUND_ROBIN;
   else if (token == "weighted_round_robin")
     algorithm = Algorithm::Type::WEIGHTED_ROUND_ROBIN;
+  else if (token == "ip_hash")
+    algorithm = Algorithm::Type::IP_HASH;
   return in;
 }
 
@@ -27,6 +29,8 @@ std::ostream &operator<<(std::ostream &out, const Algorithm::Type &algorithm) {
     out << "sticky_round_robin";
   else if (algorithm == Algorithm::Type::WEIGHTED_ROUND_ROBIN)
     out << "weighted_round_robin";
+  else if (algorithm == Algorithm::Type::IP_HASH)
+    out << "ip_hash";
   return out;
 }
 

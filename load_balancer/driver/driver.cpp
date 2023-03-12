@@ -25,6 +25,7 @@ void driver::setup_command_line(int argc, char *argv[]) {
         ("target_port", po::value<std::vector<std::string>>(&args.target_ports), "target port")
         ("algorithm", po::value<Algorithm::Type>(&args.balancing_algorithm)->default_value(args.balancing_algorithm), 
             "selected balancing algorithm. Available algorithms: constant, round_robin, sticky_round_robin, weighted_round_robin"
+            ", ip_hash"
         )
         ("target", po::value<std::size_t>(&args.target_idx), "index of selected target, must be specified if selected algorithm is constant (target >= 0)")
         ("stick_factor", po::value<std::size_t>(&args.stick_factor), "stick factor, must be specified if selected algorithm is sticky_round_robin (stick_factor > 0)")

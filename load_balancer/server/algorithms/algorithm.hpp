@@ -13,7 +13,7 @@ namespace load_balancer {
 
 class Algorithm {
 public:
-  enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN, WEIGHTED_ROUND_ROBIN };
+  enum class Type { CONSTANT, ROUND_ROBIN, STICKY_ROUND_ROBIN, WEIGHTED_ROUND_ROBIN, IP_HASH };
   virtual const TargetInfo &getNext(const RequestInfo& request) = 0;
   virtual ~Algorithm();
 };
