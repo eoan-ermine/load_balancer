@@ -23,11 +23,11 @@ public:
     stream.close();
   }
 
-  boost::beast::tcp_stream &get_stream() { return stream; }
+  boost::beast::tcp_stream &get_stream() override { return stream; }
   boost::variant<std::reference_wrapper<boost::beast::tcp_stream>,
                  std::reference_wrapper<
                      boost::beast::ssl_stream<boost::beast::tcp_stream>>>
-  get_original_stream() {
+  get_original_stream() override {
     return std::reference_wrapper(stream);
   }
 };

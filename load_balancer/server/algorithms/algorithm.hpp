@@ -1,9 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include <iosfwd>
 #include <vector>
 
-#include <boost/asio/ip/tcp.hpp>
 #include <load_balancer/server/request_info.hpp>
 #include <load_balancer/server/target_info.hpp>
 
