@@ -53,8 +53,10 @@ public:
   }
   void listen(tcp::endpoint endpoint, std::shared_ptr<Algorithm> &algorithm,
               net::yield_context yield) {
-    beast::error_code ec;
+    constexpr int PERMISSION_DENIED_CODE = 13;
+    constexpr int ALREADY_IN_USE_CODE = 98;
 
+    beast::error_code ec;
     tcp::acceptor acceptor{ioc};
     acceptor.open(endpoint.protocol(), ec);
     if (ec)
@@ -65,8 +67,21 @@ public:
       return fail(ec, "set_option");
 
     acceptor.bind(endpoint, ec);
-    if (ec)
-      return fail(ec, "bind");
+    if (ec) {
+      switch (ec.value()) {
+      case PERMISSION_DENIED_CODE:
+        std::cerr << "bind: Permission denied" << '\n';
+        std::cerr << "Ports below 1024 are considered privileged and can only be bound to with an root user\n";
+        std::cerr << "Please, try executing program as root or with sudo\n"; 
+        break;
+      case ALREADY_IN_USE_CODE:
+        std::cerr << "bind: Address already in use" << '\n';
+        std::cerr << "Port you are trying to allocate is already in use\n";
+        std::cerr << "Please, stop the process which uses that port and try again\n";
+        break;
+      }
+      std::exit(EXIT_FAILURE);
+    }
 
     acceptor.listen(net::socket_base::max_listen_connections, ec);
     if (ec)
