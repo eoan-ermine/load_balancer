@@ -64,9 +64,11 @@ int driver::run() {
                                       std::string_view(args.target_ports[idx]),
                                       args.target_ports[idx] == "443"));
   }
-  load_balancer::server{}.run(
-      args.listener_host, args.listener_port,
-      AlgorithmInfo{args.balancing_algorithm, args.target_idx, args.stick_factor, args.weights}, targets);
+  load_balancer::server{}.run(args.listener_host, args.listener_port,
+                              AlgorithmInfo{args.balancing_algorithm,
+                                            args.target_idx, args.stick_factor,
+                                            args.weights},
+                              targets);
 
   return EXIT_SUCCESS;
 }

@@ -13,7 +13,7 @@ class IPHash : public Algorithm {
 
 public:
   IPHash(std::vector<TargetInfo> &targets);
-  const TargetInfo &getNext(const RequestInfo& request) override;
+  const TargetInfo &getNext(const RequestInfo &request) override;
   ~IPHash();
 };
 

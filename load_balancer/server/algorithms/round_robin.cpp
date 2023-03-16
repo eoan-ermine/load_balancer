@@ -10,7 +10,7 @@ RoundRobin::RoundRobin(std::vector<TargetInfo> &targets) : targets(targets) {
   }
 }
 
-const TargetInfo &RoundRobin::getNext(const RequestInfo&) {
+const TargetInfo &RoundRobin::getNext(const RequestInfo &) {
   std::size_t idx;
   targetsIdx.pop(idx);
   targetsIdx.push(idx);

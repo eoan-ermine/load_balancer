@@ -11,7 +11,7 @@ class StickyRoundRobin : public RoundRobin {
 
 public:
   StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t stickFactor);
-  const TargetInfo &getNext(const RequestInfo&) override;
+  const TargetInfo &getNext(const RequestInfo &) override;
   ~StickyRoundRobin();
 };
 

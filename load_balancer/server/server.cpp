@@ -5,10 +5,10 @@
 
 #include <load_balancer/common.hpp>
 #include <load_balancer/server/algorithms/constant.hpp>
+#include <load_balancer/server/algorithms/ip_hash.hpp>
 #include <load_balancer/server/algorithms/round_robin.hpp>
 #include <load_balancer/server/algorithms/sticky_round_robin.hpp>
 #include <load_balancer/server/algorithms/weighted_round_robin.hpp>
-#include <load_balancer/server/algorithms/ip_hash.hpp>
 
 #include <load_balancer/server/extensions/http_extension.hpp>
 #include <load_balancer/server/server.hpp>

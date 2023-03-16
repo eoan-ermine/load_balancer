@@ -16,7 +16,7 @@ protected:
 
 public:
   RoundRobin(std::vector<TargetInfo> &targets);
-  const TargetInfo &getNext(const RequestInfo&) override;
+  const TargetInfo &getNext(const RequestInfo &) override;
   ~RoundRobin();
 };
 

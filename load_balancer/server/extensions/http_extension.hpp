@@ -6,8 +6,8 @@
 #include <boost/beast/ssl.hpp>
 
 #include <load_balancer/server/relay.hpp>
-#include <load_balancer/server/target_info.hpp>
 #include <load_balancer/server/request_info.hpp>
+#include <load_balancer/server/target_info.hpp>
 #include <load_balancer/server/transports/common_http_transport.hpp>
 #include <load_balancer/server/transports/http_transport.hpp>
 #include <load_balancer/server/transports/https_transport.hpp>
@@ -81,7 +81,8 @@ public:
       net::ip::tcp::endpoint client_endpoint = client_socket.remote_endpoint();
       net::ip::address client_address = client_endpoint.address();
 
-      const TargetInfo &nextTarget = algorithm->getNext(RequestInfo{ client_address });
+      const TargetInfo &nextTarget =
+          algorithm->getNext(RequestInfo{client_address});
 
       std::shared_ptr<CommonHTTPTransport> client_transport =
           std::make_shared<HTTPTransport>(
