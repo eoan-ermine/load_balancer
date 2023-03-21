@@ -12,6 +12,8 @@
 #include <load_balancer/server/transports/http_transport.hpp>
 #include <load_balancer/server/transports/https_transport.hpp>
 
+#include <load_balancer/server/algorithms/algorithm.hpp>
+
 namespace beast = boost::beast;
 namespace net = boost::asio;
 namespace ssl = boost::asio::ssl;
@@ -71,13 +73,15 @@ public:
       switch (ec.value()) {
       case PERMISSION_DENIED_CODE:
         std::cerr << "bind: Permission denied" << '\n';
-        std::cerr << "Ports below 1024 are considered privileged and can only be bound to with an root user\n";
-        std::cerr << "Please, try executing program as root or with sudo\n"; 
+        std::cerr << "Ports below 1024 are considered privileged and can only "
+                     "be bound to with an root user\n";
+        std::cerr << "Please, try executing program as root or with sudo\n";
         break;
       case ALREADY_IN_USE_CODE:
         std::cerr << "bind: Address already in use" << '\n';
         std::cerr << "Port you are trying to allocate is already in use\n";
-        std::cerr << "Please, stop the process which uses that port and try again\n";
+        std::cerr
+            << "Please, stop the process which uses that port and try again\n";
         break;
       }
       std::exit(EXIT_FAILURE);

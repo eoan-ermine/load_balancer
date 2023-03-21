@@ -4,7 +4,8 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-RoundRobin::RoundRobin(std::vector<TargetInfo> &targets) : targets(targets) {
+RoundRobin::RoundRobin(const std::vector<TargetInfo> &targets)
+    : targets(targets) {
   for (std::size_t i = 0; i != targets.size(); ++i) {
     targetsIdx.push(i);
   }

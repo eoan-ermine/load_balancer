@@ -4,8 +4,8 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-WeightedRoundRobin::WeightedRoundRobin(std::vector<TargetInfo> &targets,
-                                       std::vector<int> &weights)
+WeightedRoundRobin::WeightedRoundRobin(const std::vector<TargetInfo> &targets,
+                                       const std::vector<int> &weights)
     : RoundRobin(targets), weights(weights) {}
 
 const TargetInfo &WeightedRoundRobin::getNext(const RequestInfo &) {

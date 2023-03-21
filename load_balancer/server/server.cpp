@@ -4,11 +4,6 @@
 #include <chrono>
 
 #include <load_balancer/common.hpp>
-#include <load_balancer/server/algorithms/constant.hpp>
-#include <load_balancer/server/algorithms/ip_hash.hpp>
-#include <load_balancer/server/algorithms/round_robin.hpp>
-#include <load_balancer/server/algorithms/sticky_round_robin.hpp>
-#include <load_balancer/server/algorithms/weighted_round_robin.hpp>
 
 #include <load_balancer/server/extensions/http_extension.hpp>
 #include <load_balancer/server/server.hpp>
@@ -35,25 +30,7 @@ void server::run(
                                  std::move(resolver.resolve(domain, port))});
   }
 
-  std::shared_ptr<Algorithm> algorithm;
-  switch (info.type) {
-  case Algorithm::Type::CONSTANT:
-    algorithm = std::make_shared<Constant>(targets[info.targetIdx]);
-    break;
-  case Algorithm::Type::ROUND_ROBIN:
-    algorithm = std::make_shared<RoundRobin>(targets);
-    break;
-  case Algorithm::Type::STICKY_ROUND_ROBIN:
-    algorithm = std::make_shared<StickyRoundRobin>(targets, info.stickFactor);
-    break;
-  case Algorithm::Type::WEIGHTED_ROUND_ROBIN:
-    algorithm = std::make_shared<WeightedRoundRobin>(targets, info.weights);
-    break;
-  case Algorithm::Type::IP_HASH:
-    algorithm = std::make_shared<IPHash>(targets);
-    break;
-  }
-
+  std::shared_ptr<Algorithm> algorithm = Algorithm::create(info, targets);
   HTTPExtension extension(ioc);
   auto endpoint =
       tcp::endpoint{net::ip::make_address(host),

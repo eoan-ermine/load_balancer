@@ -6,6 +6,8 @@
 #include <boost/variant.hpp>
 #include <functional>
 
+#include <load_balancer/server/target_info.hpp>
+
 namespace eoanermine {
 
 namespace load_balancer {

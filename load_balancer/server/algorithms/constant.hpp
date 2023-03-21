@@ -8,10 +8,10 @@ namespace load_balancer {
 
 class Constant : public Algorithm {
 private:
-  TargetInfo &target;
+  const TargetInfo &target;
 
 public:
-  Constant(TargetInfo &target);
+  Constant(const TargetInfo &target);
   const TargetInfo &getNext(const RequestInfo &) override;
   ~Constant();
 };

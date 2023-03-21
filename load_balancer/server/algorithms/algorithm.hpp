@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 #include <load_balancer/server/request_info.hpp>
@@ -9,6 +10,8 @@
 namespace eoanermine {
 
 namespace load_balancer {
+
+struct AlgorithmInfo;
 
 class Algorithm {
 public:
@@ -21,6 +24,9 @@ public:
   };
   virtual const TargetInfo &getNext(const RequestInfo &request) = 0;
   virtual ~Algorithm();
+
+  static std::shared_ptr<Algorithm>
+  create(const AlgorithmInfo &info, const std::vector<TargetInfo> &targets);
 };
 
 std::istream &operator>>(std::istream &in, Algorithm::Type &algorithm);

@@ -7,11 +7,11 @@ namespace eoanermine {
 namespace load_balancer {
 
 class WeightedRoundRobin : public RoundRobin {
-  std::vector<int> &weights;
+  const std::vector<int> &weights;
 
 public:
-  WeightedRoundRobin(std::vector<TargetInfo> &targets,
-                     std::vector<int> &weights);
+  WeightedRoundRobin(const std::vector<TargetInfo> &targets,
+                     const std::vector<int> &weights);
   const TargetInfo &getNext(const RequestInfo &) override;
   ~WeightedRoundRobin();
 };

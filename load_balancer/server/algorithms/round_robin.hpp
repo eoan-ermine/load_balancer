@@ -11,11 +11,11 @@ namespace load_balancer {
 
 class RoundRobin : public Algorithm {
 protected:
-  std::vector<TargetInfo> &targets;
+  const std::vector<TargetInfo> &targets;
   boost::lockfree::queue<std::size_t, boost::lockfree::capacity<64>> targetsIdx;
 
 public:
-  RoundRobin(std::vector<TargetInfo> &targets);
+  RoundRobin(const std::vector<TargetInfo> &targets);
   const TargetInfo &getNext(const RequestInfo &) override;
   ~RoundRobin();
 };

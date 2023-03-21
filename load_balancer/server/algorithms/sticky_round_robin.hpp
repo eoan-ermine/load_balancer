@@ -10,7 +10,8 @@ class StickyRoundRobin : public RoundRobin {
   int stickFactor;
 
 public:
-  StickyRoundRobin(std::vector<TargetInfo> &targets, std::size_t stickFactor);
+  StickyRoundRobin(const std::vector<TargetInfo> &targets,
+                   std::size_t stickFactor);
   const TargetInfo &getNext(const RequestInfo &) override;
   ~StickyRoundRobin();
 };

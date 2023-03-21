@@ -4,7 +4,7 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-StickyRoundRobin::StickyRoundRobin(std::vector<TargetInfo> &targets,
+StickyRoundRobin::StickyRoundRobin(const std::vector<TargetInfo> &targets,
                                    std::size_t stickFactor)
     : RoundRobin(targets) {
   this->stickFactor = stickFactor - 1;

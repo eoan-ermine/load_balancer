@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include <load_balancer/server/algorithms/algorithm.hpp>
+
 namespace eoanermine {
 
 namespace load_balancer {

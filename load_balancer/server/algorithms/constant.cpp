@@ -4,7 +4,7 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-Constant::Constant(TargetInfo &target) : target(target) {}
+Constant::Constant(const TargetInfo &target) : target(target) {}
 
 const TargetInfo &Constant::getNext(const RequestInfo &) { return target; };
 

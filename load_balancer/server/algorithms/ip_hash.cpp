@@ -6,7 +6,7 @@ namespace eoanermine {
 
 namespace load_balancer {
 
-IPHash::IPHash(std::vector<TargetInfo> &targets) : targets(targets) {}
+IPHash::IPHash(const std::vector<TargetInfo> &targets) : targets(targets) {}
 
 const TargetInfo &IPHash::getNext(const RequestInfo &request) {
   std::size_t hash =
