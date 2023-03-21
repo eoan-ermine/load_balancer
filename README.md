@@ -1,5 +1,7 @@
 # load_balancer
 
+![logo](assets/logo.jpg)
+
 Simple load balancer written with Boost.Asio.
 
 HTTP requests forwarding to HTTP(S) targets is supported.
