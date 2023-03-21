@@ -7,6 +7,7 @@
 
 #include <load_balancer/driver/driver.hpp>
 #include <load_balancer/server/server.hpp>
+#include <load_balancer/server/target_info.hpp>
 
 namespace eoanermine {
 
@@ -57,12 +58,11 @@ int driver::run() {
     return vm.count("help") ? EXIT_SUCCESS : EXIT_FAILURE;
   }
 
-  std::vector<std::tuple<std::string_view, std::string_view, bool>> targets;
+  std::vector<TargetInfo> targets;
   for (std::size_t idx = 0, size = args.target_hosts.size(); idx != size;
        ++idx) {
-    targets.push_back(std::make_tuple(std::string_view(args.target_hosts[idx]),
-                                      std::string_view(args.target_ports[idx]),
-                                      args.target_ports[idx] == "443"));
+    targets.push_back(TargetInfo{args.target_hosts[idx], args.target_ports[idx],
+                                 args.target_ports[idx] == "443"});
   }
   load_balancer::server{}.run(args.listener_host, args.listener_port,
                               AlgorithmInfo{args.balancing_algorithm,

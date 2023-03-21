@@ -17,17 +17,12 @@ namespace eoanermine {
 namespace load_balancer {
 
 server::server(int threads) : threads{threads}, ioc(threads) {}
-void server::run(
-    std::string_view host, std::string_view port, AlgorithmInfo info,
-    std::vector<std::tuple<std::string_view, std::string_view, bool>>
-        targets_addrs) {
+void server::run(std::string_view host, std::string_view port,
+                 AlgorithmInfo info, std::vector<TargetInfo> targets) {
   tcp::resolver resolver(ioc);
 
-  std::vector<TargetInfo> targets;
-  for (std::size_t i = 0; i != targets_addrs.size(); ++i) {
-    auto [domain, port, use_https] = targets_addrs[i];
-    targets.push_back(TargetInfo{domain, port, use_https,
-                                 std::move(resolver.resolve(domain, port))});
+  for (auto &target : targets) {
+    target.resolver_results = resolver.resolve(target.domain, target.port);
   }
 
   std::shared_ptr<Algorithm> algorithm = Algorithm::create(info, targets);
