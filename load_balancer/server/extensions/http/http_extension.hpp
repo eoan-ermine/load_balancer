@@ -5,7 +5,7 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/ssl.hpp>
 
-#include <load_balancer/server/relay.hpp>
+#include <load_balancer/server/extensions/http/http_relay.hpp>
 #include <load_balancer/server/request_info.hpp>
 #include <load_balancer/server/target_info.hpp>
 #include <load_balancer/server/transports/common_http_transport.hpp>

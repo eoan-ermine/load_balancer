@@ -5,7 +5,7 @@
 
 #include <load_balancer/common.hpp>
 
-#include <load_balancer/server/extensions/http_extension.hpp>
+#include <load_balancer/server/extensions/http/http_extension.hpp>
 #include <load_balancer/server/server.hpp>
 
 namespace net = boost::asio;
